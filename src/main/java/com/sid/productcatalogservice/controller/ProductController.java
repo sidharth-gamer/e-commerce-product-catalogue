@@ -1,9 +1,13 @@
 package com.sid.productcatalogservice.controller;
 
+import com.sid.productcatalogservice.dto.CategoryDTO;
 import com.sid.productcatalogservice.dto.ProductDTO;
 import com.sid.productcatalogservice.model.Category;
 import com.sid.productcatalogservice.model.Product;
 import com.sid.productcatalogservice.model.State;
+import com.sid.productcatalogservice.service.IProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -13,6 +17,9 @@ import java.util.Objects;
 
 @RestController
 public class ProductController {
+
+    @Autowired
+    private IProductService productService; // service layer to handle business logic
 
     // we will create a dummy list of products which we will remove later when we add more features
     List<Product> products;
@@ -51,32 +58,21 @@ public class ProductController {
     @GetMapping("/products")
     public List<ProductDTO> getAllProducts() {
 
-        // this is dummy and will be removed once actually linked to fakestore
-        if(products == null) {
-            productSetup();
-        }
+        // we got the list of products from service layer
+        List<Product> products = productService.getAllProducts();
 
+        // we need to convert List<Product> to List<ProductDTO> before sending the response
         return null;
     }
 
     @GetMapping("/products/{id}")
     public ProductDTO getProductById(@PathVariable Long id) {
 
-        // this is dummy and will be removed once actually linked to fakestore
-        if(products == null) {
-            productSetup();
-        }
+        // we got the product from service layer
+        Product product = productService.getProductById(id);
 
-        Product product = null;
-
-        for(Product p : products) {
-            if(Objects.equals(p.getId(), id)) {
-                product = p;
-                break;
-            }
-        }
-
-        return null;
+        // we need to convert Product to ProductDTO before sending the response
+        return convertToProductDTO(product);
     }
 
     @PostMapping("/products")
@@ -112,5 +108,33 @@ public class ProductController {
         products.add(newProduct);
 
         return null;
+    }
+
+    private ProductDTO convertToProductDTO(Product product) {
+        // creating a new ProductDTO object
+        ProductDTO productDTO = new ProductDTO();
+
+        // mapping fields from Product to ProductDTO
+        productDTO.setId(product.getId());
+        productDTO.setName(product.getName());
+        productDTO.setDescription(product.getDescription());
+        productDTO.setPrice(product.getPrice());
+        productDTO.setImageUrl(product.getImageUrl());
+
+        if (product.getCategory() != null) {
+            // mapping Category to CategoryDTO
+            CategoryDTO categoryDTO = new CategoryDTO();
+
+            // setting category details in categoryDTO
+            categoryDTO.setId(product.getCategory().getId());
+            categoryDTO.setName(product.getCategory().getName());
+            categoryDTO.setDescription(product.getCategory().getDescription());
+
+            // setting the categoryDTO to productDTO
+            productDTO.setCategory(categoryDTO);
+        }
+
+        // returning the converted ProductDTO
+        return productDTO;
     }
 }
