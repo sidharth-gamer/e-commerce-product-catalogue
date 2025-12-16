@@ -4,6 +4,7 @@ import com.sid.productcatalogservice.dto.FakeStoreProductDTO;
 import com.sid.productcatalogservice.model.Category;
 import com.sid.productcatalogservice.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,17 +20,31 @@ public class FakeStoreProductService implements IProductService {
 
     @Override
     public Product getProductById(Long id) {
-        // STEP-1 : calling external API and directly getting body
+        /* STEP-1 : calling external API and directly getting body
         // we will call external Fake Store API to get product details, but in FakeStoreProductDTO format
         FakeStoreProductDTO fakeStoreProductDTO = restTemplate.getForObject("https://fakestoreapi.com/products/{id}", FakeStoreProductDTO.class, id);
 
         // now we need to convert FakeStoreProductDTO to our Product model and return it back
         return convertToProduct(fakeStoreProductDTO);
+        */
+
+        // STEP-2 : calling external API and getting ResponseEntity to better handle null cases
+        // we will call external Fake Store API to get product details, but in FakeStoreProductDTO format wrapped in ResponseEntity
+        ResponseEntity<FakeStoreProductDTO> fakeStoreProductDTOResponseEntity = restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", FakeStoreProductDTO.class, id);
+
+        // checking if the response is 200 OK and has body or not to avoid NullPointerException
+        if (fakeStoreProductDTOResponseEntity.getStatusCode().equals(HttpStatusCode.valueOf(200)) && fakeStoreProductDTOResponseEntity.hasBody()) {
+            // extracting body from ResponseEntity and converting it to our Product model and returning it back
+            return convertToProduct(fakeStoreProductDTOResponseEntity.getBody());
+        }
+
+        // if response is not 200 OK or has nothing in body, we will return null for now (can be improved later)
+        return null;
     }
 
     @Override
     public List<Product> getAllProducts() {
-        
+
         return new ArrayList<>();
     }
 

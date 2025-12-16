@@ -2,18 +2,18 @@ package com.sid.productcatalogservice.controller;
 
 import com.sid.productcatalogservice.dto.CategoryDTO;
 import com.sid.productcatalogservice.dto.ProductDTO;
-import com.sid.productcatalogservice.model.Category;
+import com.sid.productcatalogservice.exception.ProductNotFoundException;
 import com.sid.productcatalogservice.model.Product;
 import com.sid.productcatalogservice.model.State;
 import com.sid.productcatalogservice.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 public class ProductController {
@@ -66,13 +66,27 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    public ProductDTO getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+        // check if product id passed is 0 or negative
+        if(id < 1) {
+            // throw new IllegalArgumentException("Please pass product ID greater than 0");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         // we got the product from service layer
         Product product = productService.getProductById(id);
 
+        // check if product is null
+        if(product == null) {
+            // throw new ProductNotFoundException("Product with ID " + id + " not found");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         // we need to convert Product to ProductDTO before sending the response
-        return convertToProductDTO(product);
+        ProductDTO productDTO = convertToProductDTO(product);
+
+        // return the response entity with productDTO and HTTP status 200 OK
+        return new ResponseEntity<>(productDTO, HttpStatus.OK);
     }
 
     @PostMapping("/products")
