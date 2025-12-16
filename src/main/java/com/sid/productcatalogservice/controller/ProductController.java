@@ -1,5 +1,6 @@
 package com.sid.productcatalogservice.controller;
 
+import com.sid.productcatalogservice.dto.ProductDTO;
 import com.sid.productcatalogservice.model.Category;
 import com.sid.productcatalogservice.model.Product;
 import com.sid.productcatalogservice.model.State;
@@ -48,18 +49,18 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public List<Product> getAllProducts() {
+    public List<ProductDTO> getAllProducts() {
 
         // this is dummy and will be removed once actually linked to fakestore
         if(products == null) {
             productSetup();
         }
 
-        return products;
+        return null;
     }
 
     @GetMapping("/products/{id}")
-    public Product getProductById(@PathVariable Long id) {
+    public ProductDTO getProductById(@PathVariable Long id) {
 
         // this is dummy and will be removed once actually linked to fakestore
         if(products == null) {
@@ -75,11 +76,11 @@ public class ProductController {
             }
         }
 
-        return product;
+        return null;
     }
 
     @PostMapping("/products")
-    public Product createProduct(@RequestBody Product product) {
+    public ProductDTO createProduct(@RequestBody ProductDTO product) {
 
         Product newProduct = new Product();
         newProduct.setId(product.getId());
@@ -88,15 +89,15 @@ public class ProductController {
         newProduct.setPrice(product.getPrice());
         newProduct.setImageUrl(product.getImageUrl());
 
-        // as of now we are simpling getting category id, name and description from the request and we assume its new and appending timestamps and other system details
-        Category category = product.getCategory();
-        category.setCreatedAt(new Date());
-        category.setUpdatedAt(new Date());
-        category.setCreatedBy("system");
-        category.setUpdatedBy("system");
-        category.setState(State.ACTIVE);
+        // as of now we are simpling getting category id, name and description from the request, and we assume its new and appending timestamps and other system details
+//        Category category = product.getCategory();
+//        category.setCreatedAt(new Date());
+//        category.setUpdatedAt(new Date());
+//        category.setCreatedBy("system");
+//        category.setUpdatedBy("system");
+//        category.setState(State.ACTIVE);
 
-        newProduct.setCategory(category);
+//        newProduct.setCategory(category);
 
         newProduct.setCreatedAt(new Date());
         newProduct.setUpdatedAt(new Date());
@@ -110,6 +111,6 @@ public class ProductController {
 
         products.add(newProduct);
 
-        return newProduct;
+        return null;
     }
 }

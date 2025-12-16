@@ -11,4 +11,5 @@ public class Product extends BaseModel {
     private Double price; // this indicates the price of the product
     private String imageUrl; // this indicates the image URL of the product
     private Category category; // this indicates the category of the product
+    private Boolean isSaleSpecific; // this indicates if the product is sale specific
 }
